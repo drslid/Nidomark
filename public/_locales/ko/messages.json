@@ -327,7 +327,7 @@
   "message": "제목만으로 부족하면 사이트 읽기"
  },
  "optReadSitesHint": {
-  "message": "느리지만 더 정확합니다. Chrome에서 사이트 액세스 권한을 한 번 요청합니다."
+  "message": "느리지만 더 정확합니다. 브라우저에서 사이트 액세스 권한을 한 번 요청합니다."
  },
  "optCheckDead": {
   "message": "더 이상 응답하지 않는 사이트 찾기"
@@ -363,7 +363,7 @@
   "message": "사이트 액세스 권한 허용됨"
  },
  "sitesAsked": {
-  "message": "다음 분석 시 Chrome에서 사이트 액세스 권한을 요청합니다"
+  "message": "다음 분석 시 브라우저에서 사이트 액세스 권한을 요청합니다"
  },
  "backupsTitle": {
   "message": "백업"

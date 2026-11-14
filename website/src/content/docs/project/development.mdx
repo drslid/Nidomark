@@ -14,21 +14,23 @@ corepack enable
 pnpm install
 pnpm fetch-model   # downloads the pinned model (135 MB) and checks its hashes
 pnpm check         # type check and unit tests
-pnpm build         # extension in .output/chrome-mv3
+pnpm build         # Chrome, Edge, Brave, Opera, Vivaldi: .output/chrome-mv3
+pnpm build:firefox # Firefox: .output/firefox-mv3
 ```
 
-Load `.output/chrome-mv3` from `chrome://extensions` with **Developer mode** → **Load unpacked**. After a rebuild, click the reload arrow on the extension's card.
+Load `.output/chrome-mv3` from the extensions page with **Developer mode** → **Load unpacked**, or `.output/firefox-mv3` from `about:debugging#/runtime/this-firefox` → **Load Temporary Add-on…**. After a rebuild, reload the extension.
 
 | Command        | Purpose                                                                 |
 | -------------- | ----------------------------------------------------------------------- |
-| `pnpm dev`     | Development build with hot reload in a new Chrome window                |
+| `pnpm dev`, `pnpm dev:firefox` | Development build with hot reload in a new Chrome or Firefox window |
 | `pnpm check`   | Type check and unit tests                                               |
-| `pnpm e2e`     | End-to-end tests in Chrome, including site reading against a local server |
+| `pnpm e2e`     | End-to-end tests in Chrome, including site reading against a local server and the folders of Opera and Vivaldi; `CHROME_PATH` runs them in Edge, Brave, Opera or Vivaldi |
+| `pnpm e2e:firefox` | End-to-end tests in Firefox 140 or later (`FIREFOX_PATH`), including a site that tries to erase its data |
 | `pnpm eval`    | Where each bookmark of the test collection goes, and why               |
 | `pnpm eval:big` | Coherence on a large messy collection: subjects, places, no folder twice |
-| `pnpm zip`     | The zip published in the releases                                       |
+| `pnpm zip:all` | The packages published in the releases and the stores, and the sources archive for Firefox's reviewers |
 
-The [development guide](https://github.com/drslid/Nidomark/blob/main/docs/DEVELOPMENT.md) describes the project layout, the sorting pipeline and the conventions.
+The [development guide](https://github.com/drslid/Nidomark/blob/main/docs/DEVELOPMENT.md) describes the project layout, the sorting pipeline, what differs between browsers and the conventions. The [publishing guide](https://github.com/drslid/Nidomark/blob/main/docs/PUBLISHING.md) covers each store.
 
 ## This site
 

@@ -222,6 +222,8 @@ button, input, select { font: inherit; color: inherit; }
 .favicons { display: flex; flex: none; }
 .favicons .favicon { width: 28px; height: 28px; padding: 5px; border-radius: 50%; background: var(--ring, var(--surface-lowest)); box-shadow: 0 0 0 2px var(--ring, var(--surface-lowest)), 0 0 0 3px var(--outline-variant); }
 .favicons .favicon + .favicon { margin-inline-start: -6px; }
+/* Without a favicon cache (Firefox), the stacks show the site's initial on a tonal disc, inside the same ring. */
+.favicons .favicon-letter { background: var(--secondary-container); color: var(--on-secondary-container); font-size: 0.75rem; }
 .option-row { width: 100%; display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; min-height: 64px; padding-block: 12px; padding-inline: 20px 16px; text-align: start; }
 label.option-row, button.option-row { cursor: pointer; }
 .option-row .grow { flex: 1 1 96px; min-width: 0; }

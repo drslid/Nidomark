@@ -1,15 +1,15 @@
 // End-to-end check of the interface in other languages: right to left in Arabic, other scripts, folder names in the
 // language of the browser. Loads the built extension in Chrome with each language, sorts the fictitious collection
 // (no site read, no history) and opens a folder.
-// Usage: pnpm build && node tests/e2e/locales.mjs   (CHROME_PATH=/path/to/chrome, E2E_LANGS=ar,ja,hi,de, LOCALE_SHOTS=dir)
+// Usage: pnpm build && node tests/e2e/chromium/locales.mjs   (CHROME_PATH=/path/to/chrome, E2E_LANGS=ar,ja,hi,de, LOCALE_SHOTS=dir)
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import puppeteer from 'puppeteer-core';
-import { corpus } from '../fixtures/corpus.js';
+import { corpus } from '../../fixtures/corpus.js';
 
-const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
+const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../..');
 const EXT = path.join(ROOT, '.output', 'chrome-mv3');
 const SHOTS = process.env.LOCALE_SHOTS;
 const LANGS = (process.env.E2E_LANGS ?? 'ar,ja,hi,de').split(',');

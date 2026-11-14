@@ -1,22 +1,38 @@
 # Publishing
 
-## Chrome Web Store
+Nidomark is one extension in two packages: the Chrome package serves every Chromium browser, and Firefox has its own.
 
-### One-time setup
+| Store | Serves | Package | Account | Review |
+| --- | --- | --- | --- | --- |
+| [Chrome Web Store](https://chrome.google.com/webstore/devconsole) | Chrome, and Brave, Vivaldi, Opera and Arc users | `nidomark-<version>-chrome.zip` | Google account, one-time registration fee | A few days, up to a few weeks |
+| [Firefox Add-ons](https://addons.mozilla.org/developers/) | Firefox on a computer | `nidomark-<version>-firefox.zip` and `nidomark-<version>-sources.zip` | Mozilla account, free | Signed within 24 hours; manual review possible at any time |
+| [Edge Add-ons](https://partner.microsoft.com/dashboard/microsoftedge/overview) | Edge | `nidomark-<version>-chrome.zip` | Microsoft Partner Center, free | Up to 7 business days |
+| [Opera add-ons](https://addons.opera.com/developer/) | Opera | `nidomark-<version>-chrome.zip` | Opera account, free | Moderators, no announced delay |
 
-1. Register a developer account in the [Chrome Web Store developer dashboard](https://chrome.google.com/webstore/devconsole): accept the developer agreement and pay the one-time registration fee ([documentation](https://developer.chrome.com/docs/webstore/register)). Use an email address you check often; it cannot be changed later.
-2. Use the privacy policy published at <https://drslid.github.io/Nidomark/reference/privacy/> (source: [PRIVACY.md](PRIVACY.md)).
+- **Brave, Vivaldi and Arc** have no store of their own: they install extensions from the Chrome Web Store ([Brave](https://brave.com/learn/using-chrome-extensions-in-brave/), [Vivaldi](https://help.vivaldi.com/desktop/appearance-customization/extensions/), [Arc](https://arc.net/faq)).
+- **Safari** is out of reach for now. Its extensions have no bookmarks API ([MDN compatibility data](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/bookmarks#browser_compatibility)), and distributing one requires the Apple Developer Program.
 
-### Each release
+## Each release
 
-1. Update `version` in `package.json`.
-2. `pnpm install && pnpm fetch-model && pnpm check && pnpm zip`.
-3. Run `pnpm e2e` on the build.
-4. Upload `.output/nidomark-<version>-chrome.zip` in the dashboard.
+1. Update `version` in `package.json` and `website/package.json`.
+2. Build and test:
 
-The package is about 163 MB unpacked (89 MB zipped); the limit is 2 GB ([documentation](https://developer.chrome.com/docs/webstore/publish)).
+   ```bash
+   pnpm install --frozen-lockfile && pnpm fetch-model
+   pnpm check && pnpm e2e
+   pnpm build:firefox && FIREFOX_PATH=/path/to/firefox pnpm e2e:firefox
+   pnpm zip:all
+   ```
 
-### Store listing
+3. Publish the three files of `.output` in a GitHub release, then upload them to each store as described below.
+
+Every store wants a higher version number for each update. `wxt submit` can upload to the Chrome Web Store, Firefox Add-ons and Edge Add-ons from the command line, once their API keys are created ([WXT publishing guide](https://wxt.dev/guide/essentials/publishing.html)). The keys stay out of the repository.
+
+## Store kit
+
+What every listing needs, ready to paste or upload.
+
+### Listing texts
 
 | Field | English | Français |
 | --- | --- | --- |
@@ -47,14 +63,24 @@ Description (français) :
 > • Votre ancienne arborescence est gardée telle quelle dans une sauvegarde datée ; un clic annule le tri.
 > • En 21 langues, choisie d'après celle de votre navigateur.
 
-The extension's name and summary come from `_locales/<code>/messages.json` (`extName`, `extDescription`) in each of the 21 languages; the dashboard takes the detailed description and the screenshots per language, English and French at least.
+The extension's name and summary come from `_locales/<code>/messages.json` (`extName`, `extDescription`) in each of the 21 languages. The stores take the detailed description and the images per language: English and French at least.
 
-Images ([requirements](https://developer.chrome.com/docs/webstore/images)):
+### Images
 
-- Icon: `public/icon/128.png` (96 px artwork with 16 px transparent padding).
-- Screenshots: 1 to 5 images of 1280×800, square corners. `pnpm e2e` writes them to `.output/screenshots/store-*.png` (`E2E_LANG=en` for English), labelled "Fictional sample collection" because they show the test collection; the current set is in [`docs/store`](store).
+All images are in [`docs/store`](store). `pnpm e2e` (with `E2E_LANG=en` for English) writes the screenshots, and `pnpm store-images` renders the tiles and Opera's sizes. The screenshots show the test collection, so they say "Fictional sample collection".
 
-### Privacy practices tab
+| Image | File | Chrome Web Store | Edge | Firefox | Opera |
+| --- | --- | --- | --- | --- | --- |
+| Icon 128×128 | in the package (`icon/128.png`) | required | | from the package | from the package |
+| Logo 300×300 | `logo-300.png` | | required | | |
+| Screenshots 1280×800 | `store-1-start-<lang>.png` … `store-4-done-<lang>.png` | 1 to 5, at least one | up to 6 | recommended | |
+| Screenshots 800×500 | `opera/store-*.png` | | | | 612×408 preferred, 800×600 at most |
+| Small promo tile 440×280 | `promo-440x280-<lang>.png` | recommended | optional | | |
+| Large tile 1400×560 | `marquee-1400x560-<lang>.png` | optional | optional | | |
+
+The Chrome Web Store lists extensions that have a small promo tile before the ones that do not ([images](https://developer.chrome.com/docs/webstore/images)).
+
+### Privacy answers (Chrome Web Store, Edge)
 
 - **Single purpose:** organize the user's bookmarks into folders.
 - **`bookmarks`:** read the bookmarks to build the proposal; after the user approves, create the new folders and bookmarks, and move the previous tree into a backup folder.
@@ -65,15 +91,42 @@ Images ([requirements](https://developer.chrome.com/docs/webstore/images)):
 - **Remote code:** no. The model and the WebAssembly runtime are packaged with the extension.
 - **Data usage:** no user data is collected or transmitted.
 
-## Firefox (next)
+## Chrome Web Store
 
-WXT builds Firefox with `pnpm build:firefox` and `pnpm zip:firefox`, which also creates the sources zip required by addons.mozilla.org. Changes needed before submitting:
+1. **Register as a developer**, once. In the [developer dashboard](https://chrome.google.com/webstore/devconsole), accept the developer agreement, pay the one-time registration fee, give a publisher name and verify the contact email ([register](https://developer.chrome.com/docs/webstore/register), [account](https://developer.chrome.com/docs/webstore/set-up-account)). A new publisher can have two published extensions.
+2. **New item**: upload `nidomark-<version>-chrome.zip` (2 GB at most).
+3. **Store listing**: description, category Productivity, language, images (see above), the website <https://drslid.github.io/Nidomark/> and the support page <https://github.com/drslid/Nidomark/issues>.
+4. **Privacy**: the answers above, "No, I am not using remote code", and the privacy policy <https://drslid.github.io/Nidomark/reference/privacy/>. Disclosure is required even when everything stays on the device ([user data FAQ](https://developer.chrome.com/docs/webstore/program-policies/user-data-faq)).
+5. **Distribution**: public, all regions. Submit for review. Most reviews take a few days; broad host permissions can make them longer, even optional ones ([review process](https://developer.chrome.com/docs/webstore/review-process)). After approval, the item is published, or can be published within 30 days.
 
-- add `browser_specific_settings.gecko.id` to the manifest;
-- replace the `favicon` permission (Chrome only): the code already falls back to letter badges;
-- check the bookmarks toolbar rendering of empty titles and the root folder ids (`toolbar_____`, `unfiled_____`, already handled by `lib/snapshot.ts`);
-- run the end-to-end test against Firefox.
+## Firefox Add-ons
 
-## Edge (next)
+1. **Create a Mozilla account** and set a display name in the [Developer Hub](https://addons.mozilla.org/developers/). There is no fee.
+2. **Submit a New Add-on** → **On this site** (listed), then upload `nidomark-<version>-firefox.zip` ([submitting](https://extensionworkshop.com/documentation/publish/submitting-an-add-on/)). Choose **Firefox** only: Firefox for Android has no bookmarks API.
+3. **Source code**: answer **Yes**, then upload `nidomark-<version>-sources.zip`. The code is bundled and minified, so the sources are required for every version ([source code submission](https://extensionworkshop.com/documentation/publish/source-code-submission/)). The archive holds the lockfile, the model in parts, the ONNX Runtime files and [REVIEWERS.md](REVIEWERS.md). Two commands rebuild the same package.
+4. **Listing**: name, summary, description, categories (Bookmarks, Productivity), license MIT, support site <https://github.com/drslid/Nidomark/issues>, homepage <https://drslid.github.io/Nidomark/>, privacy policy <https://drslid.github.io/Nidomark/reference/privacy/>, screenshots.
+5. **Notes for reviewers**:
 
-Edge accepts the Chrome package: submit the same zip in Microsoft Partner Center. `wxt submit` can automate Chrome, Firefox and Edge submissions once the listings exist ([WXT publishing guide](https://wxt.dev/guide/essentials/publishing.html)).
+   > Nidomark sorts the user's bookmarks with a small embedding model run locally (Transformers.js 4.3.2, ONNX Runtime Web 1.31.1, multilingual-e5-small 8-bit). Nothing is collected or sent. The optional host permissions are used only to fetch the bookmarked pages themselves, without cookies, when the user enables "Read sites". Build instructions are in docs/REVIEWERS.md: `pnpm install --frozen-lockfile && pnpm zip:firefox`. The model and the ONNX Runtime WebAssembly files are shipped unchanged; the model is split in parts of 40 MB (joined in memory) to stay under the 100 MB file limit. The DANGEROUS_EVAL and UNSAFE_VAR_ASSIGNMENT warnings come from ONNX Runtime Web's Emscripten glue. declarativeNetRequestWithHostAccess serves one session rule that removes the Clear-Site-Data header from the answers to the add-on's own requests: Firefox would otherwise let a site erase its cookies and storage in answer to a cookieless check (see docs/REVIEWERS.md).
+
+6. Signing usually takes less than 24 hours; Mozilla can review any version manually later.
+
+From the command line, `web-ext sign --channel listed --upload-source-code .output/nidomark-<version>-sources.zip` does the same with API keys created at <https://addons.mozilla.org/developers/addon/api/key/> ([web-ext sign](https://extensionworkshop.com/documentation/develop/web-ext-command-reference/#web-ext-sign)).
+
+## Edge Add-ons
+
+1. **Create a Partner Center account** for Microsoft Edge, as an individual, which is verified faster than a company. There is no registration fee ([developer account](https://learn.microsoft.com/en-us/microsoft-edge/extensions/publish/create-dev-account)).
+2. **Create new extension**, then upload `nidomark-<version>-chrome.zip`: Edge runs Chrome's Manifest V3 extensions as they are ([porting](https://learn.microsoft.com/en-us/microsoft-edge/extensions/developer-guide/port-chrome-extension)). `tests/e2e/chromium/roots.mjs` passes in Edge.
+3. **Availability**: public, all markets.
+4. **Properties**: category Productivity, privacy policy, website and support links (as above).
+5. **Store listings**, per language: description, logo `logo-300.png`, tiles and screenshots (see Images).
+6. Fill in the privacy answers, then **Publish**. Certification takes up to seven business days ([publishing](https://learn.microsoft.com/en-us/microsoft-edge/extensions/publish/publish-extension)).
+
+## Opera add-ons
+
+1. Sign in with an Opera account at <https://addons.opera.com/developer/upload/>.
+2. Upload the Chrome package. If the form asks for a `.crx` file, pack the unzipped folder in `opera://extensions` → **Developer mode** → **Pack extension**. Keep the `.pem` key it creates: updates must be signed with it.
+3. Opera reviews readable code: the package is minified, so give the link to the sources, `https://github.com/drslid/Nidomark/releases` ([acceptance criteria](https://help.opera.com/en/extensions/acceptance-criteria/)).
+4. Category Productivity, description, the screenshots of `docs/store/opera` and the privacy policy.
+
+Opera users can also install Nidomark from the Chrome Web Store. Nidomark sorts Opera's Bookmarks bar, Unsorted bookmarks, Imported bookmarks and Other bookmarks, and leaves its Speed Dial, Pinboards and trash as they are.

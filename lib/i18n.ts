@@ -1,4 +1,5 @@
 import { browser } from 'wxt/browser';
+import type { RootKind } from './snapshot';
 
 /** Translated message; "{1}", "{2}"… are replaced by the substitutions. */
 export function t(key: string, ...subs: (string | number)[]): string {
@@ -6,8 +7,12 @@ export function t(key: string, ...subs: (string | number)[]): string {
   return msg.replace(/\{(\d)\}/g, (_, n: string) => String(subs[Number(n) - 1] ?? ''));
 }
 
-/** Name of a root folder in the interface's language (Chrome's own words for it), else the title Chrome gives it. */
-export function rootFolderName(kind: 'bar' | 'other' | 'mobile', liveTitle: string): string {
+/**
+ * Name of a root folder as the browser shows it: its own title when it names its roots in its own language (Firefox,
+ * Opera), else Chrome's words in the interface's language.
+ */
+export function rootFolderName(kind: RootKind, liveTitle: string, live = false): string {
+  if (live && liveTitle) return liveTitle;
   const own = kind === 'bar' ? t('barFolder') : kind === 'other' ? t('otherFolder') : '';
   return own || liveTitle;
 }

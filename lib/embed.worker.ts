@@ -9,6 +9,22 @@ env.allowLocalModels = true;
 env.localModelPath = '/models/';
 env.useBrowserCache = false;
 env.useWasmCache = false;
+// The model and its tokenizer ship in parts, under the 100 MB a file may weigh in Firefox's add-on store and the
+// 5 MB of JSON it checks (scripts/fetch-model.mjs): they are joined here, through the cache Transformers.js asks
+// before reading a file.
+const PARTED = new Set(['onnx/model_quantized.onnx', 'tokenizer.json'].map((f) => `${env.localModelPath}${MODEL_ID}/${f}`));
+env.useCustomCache = true;
+env.customCache = {
+  async match(request: string) {
+    if (!PARTED.has(request)) return undefined;
+    const index = (await (await fetch(`${request}.parts.json`)).json()) as { size: number; parts: string[] };
+    const dir = request.slice(0, request.lastIndexOf('/') + 1);
+    const blob = new Blob(await Promise.all(index.parts.map(async (p) => (await fetch(`${dir}${p}`)).blob())));
+    if (blob.size !== index.size) throw new Error(`${request} is incomplete (${blob.size} of ${index.size} bytes)`);
+    return new Response(blob, { headers: { 'content-length': String(blob.size) } });
+  },
+  async put() {},
+};
 if (env.backends.onnx.wasm) {
   env.backends.onnx.wasm.wasmPaths = '/ort/';
   env.backends.onnx.wasm.numThreads = 1;

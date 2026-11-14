@@ -11,33 +11,42 @@
 <p align="center">
   <a href="https://github.com/drslid/Nidomark/actions/workflows/ci.yml"><img src="https://github.com/drslid/Nidomark/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
   <a href="https://drslid.github.io/Nidomark/"><img src="https://img.shields.io/badge/docs-drslid.github.io%2FNidomark-0f766e" alt="Documentation"></a>
-  <img src="https://img.shields.io/badge/status-alpha-f59e0b" alt="Alpha status">
-  <img src="https://img.shields.io/badge/Chrome-Manifest%20V3-0f766e?logo=googlechrome&logoColor=white" alt="Chrome Manifest V3">
+  <a href="https://github.com/drslid/Nidomark/releases/latest"><img src="https://img.shields.io/github/v/release/drslid/Nidomark?color=0f766e" alt="Latest release"></a>
+  <img src="https://img.shields.io/badge/browsers-Chrome%20%7C%20Edge%20%7C%20Firefox%20%7C%20Brave%20%7C%20Opera%20%7C%20Vivaldi-0f766e" alt="Chrome, Edge, Firefox, Brave, Opera, Vivaldi">
   <img src="https://img.shields.io/badge/AI-local%20%7C%20offline-17314a" alt="Local and offline AI">
   <img src="https://img.shields.io/badge/languages-21-17314a" alt="21 languages">
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-0b1724" alt="MIT License"></a>
 </p>
 
-> [!IMPORTANT]
-> Nidomark is alpha software. Nothing changes before you approve the proposal, your previous tree is kept as it was in a dated backup, and every sort can be undone. Still, export your bookmarks once before your first run (`chrome://bookmarks` → ⋮ → **Export bookmarks**).
+> [!TIP]
+> Nothing changes before you approve the proposal, your previous tree is kept as it was in a dated backup, and every sort can be undone. An export of your bookmarks before your first sort is still a good idea: it is a copy outside the browser (in Chrome, `chrome://bookmarks` → ⋮ → **Export bookmarks**).
 
 ## Quick install
 
 You need:
 
-- Chrome 116 or later on Windows, macOS or Linux;
+- a computer with Windows, macOS or Linux;
+- Chrome 116 or later, Edge, Brave, Opera or Vivaldi, or Firefox 140 or later;
 - about 200 MB of free disk space and 4 GB of RAM or more.
 
-Load the extension in developer mode:
+The store listings are on their way. Until they are published, install a release:
 
-1. Download `nidomark-<version>-chrome.zip` from the [Releases page](https://github.com/drslid/Nidomark/releases) and unzip it.
-2. Open `chrome://extensions` and turn on **Developer mode** (top right).
+**Chrome, Edge, Brave, Opera, Vivaldi**
+
+1. Download `nidomark-<version>-chrome.zip` from the [Releases page](https://github.com/drslid/Nidomark/releases) and unzip it into a folder you keep.
+2. Open the extensions page (`chrome://extensions`, `edge://extensions`, `brave://extensions`, `opera://extensions` or `vivaldi://extensions`) and turn on **Developer mode**.
 3. Click **Load unpacked** and select the unzipped folder.
-4. Click the extension's toolbar button, then **Analyze my bookmarks**.
 
-The first analysis loads the model, which takes a few seconds. Each bookmark then takes about 60 ms on one CPU core, and later analyses reuse a local cache.
+**Firefox**
 
-**Build it yourself:** see [Development](#development). **Chrome Web Store:** coming after the alpha. **Documentation:** [drslid.github.io/Nidomark](https://drslid.github.io/Nidomark/).
+1. Download `nidomark-<version>-firefox.zip` from the [Releases page](https://github.com/drslid/Nidomark/releases).
+2. Open `about:debugging#/runtime/this-firefox`, click **Load Temporary Add-on…** and select the zip.
+
+Firefox keeps an add-on loaded this way until it restarts; the Firefox Add-ons listing will install it for good.
+
+Then click Nidomark's toolbar button, then **Analyze my bookmarks**. The first analysis loads the model, which takes a few seconds. Each bookmark then takes about 60 ms on one CPU core, and later analyses reuse a local cache.
+
+**Build it yourself:** see [Development](#development). **Documentation:** [drslid.github.io/Nidomark](https://drslid.github.io/Nidomark/).
 
 ## What Nidomark is
 
@@ -84,13 +93,14 @@ The new tree is built for finding things again:
 - A preview of the new bookmarks bar, where one click hides or shows a bookmark's name.
 - Cleaner titles: notification counters and repeated site names removed.
 - Visual review before anything is written: your bookmarks on the left, the new tree on the right with every level of folders, grouped by where they will be created. Open any folder to see why each bookmark goes there.
-- Everything can be changed before applying: select all the bookmarks of a folder, or some of them, and move or remove them together; drag bookmarks and folders anywhere in the tree, create folders at any level, rename, move or delete a folder (keeping or not what it holds), rename or remove a bookmark (it stays in the backup), choose for each folder how Chrome shows it (emoji, emoji and name, or name), show a bar bookmark as its icon only, and undo any change (Ctrl+Z).
+- Everything can be changed before applying: select all the bookmarks of a folder, or some of them, and move or remove them together; drag bookmarks and folders anywhere in the tree, create folders at any level, rename, move or delete a folder (keeping or not what it holds), rename or remove a bookmark (it stays in the backup), choose for each folder how your browser shows it (emoji, emoji and name, or name), show a bar bookmark as its icon only, and undo any change (Ctrl+Z).
 - Suggestions for every bookmark to check, the most likely first, and **File all as suggested** in one click.
 - **Analyze again** on any folder: a new analysis of its bookmarks with what you taught in the review, reading the pages not read yet.
 - Partial sorts add to the folders an earlier sort made, instead of making a second "Tech".
 - Learning from your corrections: a bookmark you file elsewhere teaches the next sorts where its site goes; undoing the sort forgets it.
 - Write-ahead journal and one-click undo that never overwrites later changes.
 - Optional use of the browsing history, on this computer, to find your most visited sites and to understand vague titles such as "Home" or "Dashboard".
+- The same extension in Chrome, Edge, Brave, Opera, Vivaldi and Firefox, with each browser's own folders: Firefox's Bookmarks Menu, Opera's Unsorted bookmarks, Vivaldi's bar. Speed Dials and trash are left as they are.
 - Clean Material Design interface, light or dark like your browser, in 21 languages chosen from the browser's own: English, French, Spanish, Italian, German, Portuguese (Brazil, Portugal), Russian, Ukrainian, Polish, Dutch, Turkish, Arabic (right to left), Hindi, Bengali, Indonesian, Vietnamese, Japanese, Korean, Chinese (simplified, traditional). Folder names follow, and your own folders are recognised in any of them.
 
 ## Architecture
@@ -115,7 +125,7 @@ The model ([`Xenova/multilingual-e5-small`](https://huggingface.co/Xenova/multil
 - [Website](https://drslid.github.io/Nidomark/): guides for your first sort, the review, quick access, the backup and the settings.
 - [Development](docs/DEVELOPMENT.md): build, test and project layout.
 - [Privacy](docs/PRIVACY.md): what is read, what is stored, what is never sent.
-- [Publishing](docs/PUBLISHING.md): Chrome Web Store checklist, then Firefox and Edge.
+- [Publishing](docs/PUBLISHING.md): Chrome Web Store, Firefox Add-ons, Edge Add-ons and Opera add-ons; [reviewer notes](docs/REVIEWERS.md) to rebuild the Firefox package.
 - [Security reports](SECURITY.md) and [contributions](CONTRIBUTING.md).
 
 ## Development
@@ -125,32 +135,35 @@ corepack enable
 pnpm install
 pnpm fetch-model   # downloads the pinned model (135 MB) and checks its hashes
 pnpm check         # type check and unit tests
-pnpm build         # extension in .output/chrome-mv3
+pnpm build         # Chrome, Edge, Brave, Opera, Vivaldi: .output/chrome-mv3
+pnpm build:firefox # Firefox: .output/firefox-mv3
 ```
 
-Load `.output/chrome-mv3` with **Load unpacked**, or run `pnpm dev` for a browser with hot reload. `pnpm zip` creates the file for the Chrome Web Store.
+Load `.output/chrome-mv3` with **Load unpacked**, or run `pnpm dev` (`pnpm dev:firefox`) for a browser with hot reload. `pnpm zip:all` creates the packages for every store, and the sources archive Firefox's reviewers rebuild it from.
 
 ```text
 entrypoints/app         Organizer page: analysis, review, bookmarks bar preview, settings
 entrypoints/background  Toolbar button and first-run page
-lib                     Classifier, use signals, plan and undo, review edits, model worker, storage
+lib                     Classifier, use signals, plan and undo, review edits, model worker, storage;
+                        lib/platform.ts holds what differs between browsers
 lib/data/names          Folder names in each language
 lib/ui                  Canvas, side sheet, menus and settings, without a UI framework
 public/_locales         Interface messages in 21 languages
 scripts                 Model download (pinned and verified) and icon generation
-tests                   Unit tests (Vitest) and an end-to-end test in Chrome
+tests                   Unit tests (Vitest); end-to-end tests in tests/e2e/chromium (Chrome, Edge, Brave,
+                        Opera, Vivaldi) and tests/e2e/firefox
 ```
 
 ## Security and scope
 
 - The analysis runs on your computer. The only network requests are the bookmarked pages themselves, when you let Nidomark read sites: without cookies, and nothing else is sent.
-- Required permission: `bookmarks`. `favicon` shows site icons. Access to sites and `history` are optional and asked for only when you use them.
+- Required permissions: `bookmarks` and `storage`. `favicon` shows site icons in Chromium browsers (Firefox shows a letter instead). In Firefox, `declarativeNetRequestWithHostAccess` keeps the sites Nidomark reads from erasing their cookies and data in answer (the Clear-Site-Data header), which Chromium browsers refuse on their own. Access to sites and `history` are optional and asked for only when you use them.
 - A sort never deletes a bookmark: it creates the new tree from copies and moves the previous one, untouched, into a dated backup. Undo puts every original back at its place, with the same ids and dates, and removes a copy only while its original still exists.
 - Every operation is written to a journal first; undo skips anything you changed afterwards instead of overwriting it.
-- With Chrome sync on, the new tree and the backup are both synced until you delete the backup (Settings → Backups).
+- With your browser's sync on, the new tree and the backup are both synced until you delete the backup (Settings → Backups). Opera and Vivaldi put what an extension deletes in their trash: the copies an undo removes wait there.
 - The extension's code is fully packaged. Its Content Security Policy only adds WebAssembly, required by the model runtime.
 
-Not included yet: Firefox and Edge builds, targeted history cleanup, a password-protected vault. They are planned in this order.
+Not included yet: targeted history cleanup and a password-protected vault, planned in this order. Safari is out of reach for now: its extensions cannot read bookmarks.
 
 ## License
 

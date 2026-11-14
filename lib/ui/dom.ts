@@ -1,4 +1,5 @@
 import { browser } from 'wxt/browser';
+import { HAS_FAVICON_CACHE } from '../platform';
 import { ICONS } from './icons';
 
 type Child = Node | string | number | null | undefined | false;
@@ -44,7 +45,7 @@ export function icon(name: string, label?: string, extraClass = ''): SVGSVGEleme
 
 /** Site icon from the browser's favicon cache (Chrome), or a letter badge elsewhere. */
 export function favicon(url: string, size = 16): HTMLElement {
-  if (import.meta.env.BROWSER !== 'firefox') {
+  if (HAS_FAVICON_CACHE) {
     const src = `${browser.runtime.getURL('/_favicon/' as never)}?pageUrl=${encodeURIComponent(url)}&size=${size * 2}`;
     return h('img', { class: 'favicon', src, width: size, height: size, alt: '', loading: 'lazy', draggable: false });
   }

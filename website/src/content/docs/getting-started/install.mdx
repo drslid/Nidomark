@@ -1,56 +1,102 @@
 ---
 title: Install
-description: Install the Nidomark alpha in Chrome on Windows, macOS or Linux, update it and remove it.
+description: Install Nidomark in Chrome, Edge, Brave, Opera, Vivaldi or Firefox on a computer, update it and remove it.
 ---
 
-import { Aside, Steps } from '@astrojs/starlight/components';
+import { Aside, Steps, TabItem, Tabs } from '@astrojs/starlight/components';
 
 ## Requirements
 
-| Requirement | Minimum                            |
-| ----------- | ---------------------------------- |
-| Browser     | Chrome 116 or later, on a computer |
-| System      | Windows, macOS or Linux            |
-| Disk        | About 200 MB free                  |
-| Memory      | 4 GB of RAM or more                |
+| Requirement | Minimum                                                                 |
+| ----------- | ----------------------------------------------------------------------- |
+| Browser     | Chrome 116 or later, Edge, Brave, Opera or Vivaldi; Firefox 140 or later |
+| System      | Windows, macOS or Linux, on a computer                                  |
+| Disk        | About 200 MB free                                                       |
+| Memory      | 4 GB of RAM or more                                                     |
 
-Firefox and Edge are planned: see [Status and roadmap](/project/status/).
+Safari cannot run Nidomark: its extensions have no access to bookmarks.
 
-## Install the alpha
+## Install
 
-Nidomark is not on the Chrome Web Store yet. Load it in developer mode:
+The store listings are on their way. Until they are published, install a release from GitHub:
+
+<Tabs syncKey="browser">
+<TabItem label="Chrome, Edge, Brave, Opera, Vivaldi">
 
 <Steps>
 
 1. Download `nidomark-<version>-chrome.zip` from the [Releases page](https://github.com/drslid/Nidomark/releases) and unzip it into a folder you will keep.
 
-2. Open `chrome://extensions` and turn on **Developer mode**, top right.
+2. Open your browser's extensions page (`chrome://extensions`, `edge://extensions`, `brave://extensions`, `opera://extensions` or `vivaldi://extensions`) and turn on **Developer mode**.
 
 3. Click **Load unpacked** and select the unzipped folder.
 
-4. Pin Nidomark to the toolbar from the puzzle-piece menu, then click its button: the organizer opens in a tab.
+4. Pin Nidomark to the toolbar from the extensions menu, then click its button: the organizer opens in a tab.
 
 </Steps>
 
+</TabItem>
+<TabItem label="Firefox">
+
+<Steps>
+
+1. Download `nidomark-<version>-firefox.zip` from the [Releases page](https://github.com/drslid/Nidomark/releases).
+
+2. Open `about:debugging#/runtime/this-firefox` and click **Load Temporary Add-on…**.
+
+3. Select the zip, then click Nidomark's button in the toolbar or the extensions menu: the organizer opens in a tab.
+
+</Steps>
+
+Firefox keeps an add-on loaded this way until it restarts. Once Nidomark is on Firefox Add-ons, install it from there: it stays, and updates itself.
+
+</TabItem>
+</Tabs>
+
 <Aside type="caution" title="Before the first sort">
-  Export your bookmarks once: `chrome://bookmarks` → ⋮ → **Export bookmarks**. Nidomark keeps your previous tree in
-  a dated backup when it applies a sort, but an export is a copy outside the browser.
+  Export your bookmarks once: a copy outside the browser. In Chrome, `chrome://bookmarks` → ⋮ → **Export bookmarks**;
+  in Firefox, **Bookmarks** → **Manage bookmarks** → **Import and Backup** → **Export Bookmarks to HTML**. Nidomark also
+  keeps your previous tree in a dated backup when it applies a sort.
 </Aside>
+
+## Each browser's folders
+
+Nidomark sorts the folders where your browser keeps bookmarks, under the names your browser gives them, and leaves alone the ones the browser keeps for its own features.
+
+| Browser             | Sorted                                                                                  | Left as they are           |
+| ------------------- | --------------------------------------------------------------------------------------- | -------------------------- |
+| Chrome, Edge, Brave | Bookmarks bar, Other bookmarks, Mobile bookmarks                                        |                            |
+| Firefox             | Bookmarks Toolbar, Bookmarks Menu, Other Bookmarks, Mobile Bookmarks                    |                            |
+| Opera               | Bookmarks bar, Unsorted bookmarks, Imported bookmarks, Other bookmarks (the backup goes there) | Speed Dial, Pinboards, trash |
+| Vivaldi             | The folder its bar shows, the rest of Bookmarks, Other bookmarks                        | Speed Dials, trash         |
+
+In Vivaldi, the folder the bar shows keeps its place: Nidomark empties it into the backup and fills it with the new bar. Opera and Vivaldi put what an extension deletes in their trash, so after an undo the copies the sort had made wait there; empty the trash to remove them for good.
 
 ## Update
 
-Chrome identifies an extension loaded in developer mode by its folder. To keep your settings and the undo journal:
+<Tabs syncKey="browser">
+<TabItem label="Chrome, Edge, Brave, Opera, Vivaldi">
+
+Your browser identifies an extension loaded in developer mode by its folder. To keep your settings and the undo journal:
 
 <Steps>
 
 1. Empty the folder you loaded, then unzip the new version into it.
 
-2. In `chrome://extensions`, click the reload arrow on the Nidomark card.
+2. On the extensions page, click the reload arrow on the Nidomark card.
 
 </Steps>
 
-If you unzip the new version somewhere else, Chrome treats it as a second extension: remove the old one first.
+If you unzip the new version somewhere else, the browser treats it as a second extension: remove the old one first.
+
+</TabItem>
+<TabItem label="Firefox">
+
+Load the new zip from `about:debugging#/runtime/this-firefox`, as for the first install. Once installed from Firefox Add-ons, Nidomark updates itself.
+
+</TabItem>
+</Tabs>
 
 ## Remove
 
-In `chrome://extensions`, click **Remove** on the Nidomark card. This deletes its settings, its cache and the undo journal. The backup folders it created are bookmarks: they stay until you delete them.
+On the extensions page (`about:addons` in Firefox), remove Nidomark. This deletes its settings, its cache and the undo journal. The backup folders it created are bookmarks: they stay until you delete them.

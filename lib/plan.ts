@@ -8,6 +8,8 @@ export interface NodeView {
   index?: number;
   title: string;
   url?: string;
+  /** "separator" for Firefox's separators, which carry the address "data:". */
+  type?: string;
 }
 
 /** Minimal bookmarks API, satisfied by `browser.bookmarks` in Chrome and Firefox (and by test fakes). */
@@ -408,7 +410,7 @@ function sameAsExpected(cur: NodeView, e: Expected, checkParent: boolean): boole
 async function copyTree(api: BookmarksApi, sourceId: string, parentId: string, skip: (n: NodeView) => boolean): Promise<number> {
   let count = 0;
   for (const child of await api.getChildren(sourceId)) {
-    if (skip(child)) continue;
+    if (skip(child) || child.type === 'separator') continue;
     if (child.url !== undefined) {
       await api.create({ parentId, title: child.title, url: child.url });
       count++;

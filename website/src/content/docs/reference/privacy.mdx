@@ -7,12 +7,12 @@ Nidomark organizes your bookmarks on your own computer. It has no account, no se
 
 ## What the extension reads
 
-- **Bookmarks** (`bookmarks` permission): titles, addresses and folders, to build the proposal and apply the new tree you approve.
-- **Site icons** (`favicon` permission, Chrome only): the icons already cached by the browser, to display them in the review.
-- **Bookmarked pages** (access to sites, optional): only if **Read sites when the title is not enough** or **Find sites that no longer answer** is on. Chrome asks for this access once, at the first analysis; you can refuse it, turn both options off, or revoke it at any time in `chrome://extensions`.
-- **Your browsing history** (`history` permission, optional): only while **Put the most visited sites first** is on. It is on by default, and Chrome asks for this access at the first analysis. Nidomark counts the visits of each site, to choose the quick access icons and to put the most used folders first, and reads the page titles your browser already stored, to understand vague titles such as "Home". The history is read on your computer, never stored by Nidomark and never sent. You can refuse the access, turn the option off, or revoke it at any time in the settings or in `chrome://extensions`.
+- **Bookmarks** (`bookmarks` permission): titles, addresses and folders, to build the proposal and apply the new tree you approve. The folders your browser keeps for its own features (the Speed Dial and the trash of Opera and Vivaldi, Opera's Pinboards) are never read.
+- **Site icons** (`favicon` permission, in Chrome, Edge, Brave, Opera and Vivaldi): the icons already cached by the browser, to display them in the review. Firefox shows the first letter of each site instead.
+- **Bookmarked pages** (access to sites, optional): only if **Read sites when the title is not enough** or **Find sites that no longer answer** is on. Your browser asks for this access once, at the first analysis; you can refuse it, turn both options off, or revoke it at any time in the browser's extensions page (`chrome://extensions`, or `about:addons` in Firefox).
+- **Your browsing history** (`history` permission, optional): only while **Put the most visited sites first** is on. It is on by default, and your browser asks for this access at the first analysis. Nidomark counts the visits of each site, to choose the quick access icons and to put the most used folders first, and reads the page titles your browser already stored, to understand vague titles such as "Home". The history is read on your computer, never stored by Nidomark and never sent. You can refuse the access, turn the option off, or revoke it at any time in the settings or in the browser's extensions page.
 
-Chrome describes access to sites as "Read and change all your data on all websites": that is its standard wording for this permission. Nidomark uses it only to request the bookmarked pages themselves. It has no content script: it never reads or changes the pages you visit.
+Chrome describes access to sites as "Read and change all your data on all websites", and Firefox as "Access your data for all websites": that is their standard wording for this permission. Nidomark uses it only to request the bookmarked pages themselves. It has no content script: it never reads or changes the pages you visit.
 
 ## How pages are read
 
@@ -22,6 +22,7 @@ When the title and address of a bookmark are not enough to file it, or to check 
 - only the beginning of the page is read (its title, description, headings and first paragraphs), and it is never stored;
 - when a page says too little about itself, the home page of the same site may be read as well;
 - addresses of your local network and services hosted at home are never requested;
+- a site cannot erase its cookies or its data in answer, as some do for a visitor they do not recognise (the Clear-Site-Data header): Chrome, Edge, Brave, Opera and Vivaldi refuse it for a request without cookies, and in Firefox Nidomark removes that header from the answers to its own requests. In developer mode, Chrome lists the refusal among the extension's errors (`Clear-Site-Data header on '…': The request's credentials mode prohibits modifying cookies and other local data.`): that message means you stayed signed in;
 - nothing about your bookmarks or your collection is sent anywhere. The only traffic is the page request, the one a visit would make; the site sees your IP address, as it would during a visit.
 
 ## What the extension stores
@@ -36,13 +37,13 @@ Everything is stored locally, in the extension's storage on your computer:
 - the list of the backups it made;
 - a cache of the numbers the model computed for each bookmark text.
 
-A sort recreates your bookmarks in a new tree and moves your previous tree, as it was, into a backup folder among your bookmarks, in Other bookmarks. If you use Chrome sync, the backup is synced like any bookmark, so your bookmarks count twice until you delete it. When **One copy of each page** is on, copies of a page kept elsewhere are not recreated; they stay in the backup, and undoing the sort puts them back with the rest.
+A sort recreates your bookmarks in a new tree and moves your previous tree, as it was, into a backup folder among your bookmarks, in Other bookmarks. If you use your browser's sync, the backup is synced like any bookmark, so your bookmarks count twice until you delete it. When **One copy of each page** is on, copies of a page kept elsewhere are not recreated; they stay in the backup, and undoing the sort puts them back with the rest.
 
 **Clear** in the settings deletes the analysis cache. Removing the extension deletes all of its data; the backup folders, being bookmarks, stay until you delete them.
 
 ## What the extension sends
 
-Nothing. The model and its runtime are packaged with the extension and run offline. Apart from the page requests described above, which you can turn off, the extension makes no network request. It does not sell or share data, and does not use it for any purpose other than organizing your bookmarks.
+Nothing. Firefox shows it in its install prompt: Nidomark declares that it collects no data. The model and its runtime are packaged with the extension and run offline. Apart from the page requests described above, which you can turn off, the extension makes no network request. It does not sell or share data, and does not use it for any purpose other than organizing your bookmarks.
 
 ## Permissions at a glance
 
@@ -50,7 +51,8 @@ Nothing. The model and its runtime are packaged with the extension and run offli
 | ----------------------- | -------- | ------------------------------------------------------------ |
 | `bookmarks`             | Yes      | Reading the bookmarks, then, after you apply, creating the new folders and bookmarks and moving the previous tree into a backup folder. |
 | `storage`               | Yes      | Settings, undo journal, original names, your corrections, backups list. |
-| `favicon`               | Yes      | Site icons in the review.                                    |
+| `favicon`               | Yes, except in Firefox | Site icons in the review.                      |
+| `declarativeNetRequestWithHostAccess` | Firefox only | Removing the Clear-Site-Data header from the answers to Nidomark's own requests, so that a site it reads cannot sign you out. Firefox shows no warning for it, and it acts only where you granted access to sites. |
 | Access to sites         | Optional | Reading the bookmarked pages; finding dead links.            |
 | `history`               | Optional | Visits of each site for quick access and the order of the folders; real page titles for vague bookmark titles. |
 

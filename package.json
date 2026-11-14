@@ -1,7 +1,7 @@
 {
   "name": "nidomark",
   "description": "Local AI that tidies your browser bookmarks into clear folders. Private, offline, free.",
-  "version": "0.5.0",
+  "version": "1.0.0",
   "private": true,
   "type": "module",
   "license": "MIT",
@@ -16,13 +16,17 @@
     "build:firefox": "wxt build -b firefox",
     "zip": "wxt zip",
     "zip:firefox": "wxt zip -b firefox",
+    "build:all": "wxt build && wxt build -b firefox",
+    "zip:all": "wxt zip && wxt zip -b firefox",
     "fetch-model": "node scripts/fetch-model.mjs",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "check": "pnpm typecheck && pnpm test",
     "postinstall": "wxt prepare",
-    "e2e": "node tests/e2e/smoke.mjs && node tests/e2e/sites.mjs && node tests/e2e/locales.mjs",
+    "e2e": "node tests/e2e/chromium/smoke.mjs && node tests/e2e/chromium/sites.mjs && node tests/e2e/chromium/locales.mjs && node tests/e2e/chromium/roots.mjs",
+    "e2e:firefox": "node tests/e2e/firefox/smoke.mjs && node tests/e2e/firefox/sites.mjs",
     "icons": "node scripts/make-icons.mjs",
+    "store-images": "node scripts/make-store-images.mjs",
     "fixtures": "jiti scripts/fixture-vectors.ts",
     "examples": "jiti scripts/example-vectors.ts",
     "eval": "jiti scripts/eval.ts",
@@ -38,6 +42,9 @@
     "wxt": "0.21.5"
   },
   "pnpm": {
+    "overrides": {
+      "onnxruntime-web": "1.31.1"
+    },
     "onlyBuiltDependencies": [
       "esbuild"
     ],

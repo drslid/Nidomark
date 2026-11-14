@@ -1,15 +1,15 @@
 // End-to-end test: loads the built extension in Chrome, creates the fictitious collection (synthetic data),
 // runs a real analysis with the packaged model, corrects the proposal with the menu and with drag and drop,
 // rebuilds the tree, then undoes it.
-// Usage: pnpm build && node tests/e2e/smoke.mjs   (CHROME_PATH=/path/to/chrome, E2E_LANG=fr|en, SCREENSHOTS=dir, REVIEW_SHOTS=dir)
+// Usage: pnpm build && node tests/e2e/chromium/smoke.mjs   (CHROME_PATH=/path/to/chrome, E2E_LANG=fr|en, SCREENSHOTS=dir, REVIEW_SHOTS=dir)
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import puppeteer from 'puppeteer-core';
-import { corpus } from '../fixtures/corpus.js';
+import { corpus } from '../../fixtures/corpus.js';
 
-const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
+const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../..');
 const EXT = path.join(ROOT, '.output', 'chrome-mv3');
 const SHOTS = process.env.SCREENSHOTS ?? path.join(ROOT, '.output', 'screenshots');
 const REVIEW = process.env.REVIEW_SHOTS;

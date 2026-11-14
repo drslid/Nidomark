@@ -1119,7 +1119,8 @@ export function scopeCandidates(snapshot: Snapshot, include: string[], exclude: 
     if (cur && !cur.unmodifiable && !(isBackupTitle(cur.title) && !cur.isRoot)) {
       if (excluded.has(cur.id)) ok = false;
       else if (included.has(cur.id)) ok = true;
-      else ok = cur.parentId ? inScope(cur.parentId) : false;
+      // A root is chosen by itself only: Vivaldi's bar is a root inside another.
+      else ok = cur.parentId && !cur.isRoot ? inScope(cur.parentId) : false;
     }
     memo.set(folderId, ok);
     return ok;

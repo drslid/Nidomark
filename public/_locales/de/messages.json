@@ -327,7 +327,7 @@
   "message": "Websites lesen, wenn der Titel nicht ausreicht"
  },
  "optReadSitesHint": {
-  "message": "Langsamer, aber genauer. Chrome fragt einmalig nach Zugriff auf Websites."
+  "message": "Langsamer, aber genauer. Der Browser fragt einmalig nach Zugriff auf Websites."
  },
  "optCheckDead": {
   "message": "Nicht mehr erreichbare Websites finden"
@@ -363,7 +363,7 @@
   "message": "Zugriff auf Websites gewährt"
  },
  "sitesAsked": {
-  "message": "Chrome fragt bei der nächsten Analyse nach Zugriff auf Websites"
+  "message": "Der Browser fragt bei der nächsten Analyse nach Zugriff auf Websites"
  },
  "backupsTitle": {
   "message": "Sicherungen"

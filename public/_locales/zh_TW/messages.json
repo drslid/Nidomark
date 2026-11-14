@@ -327,7 +327,7 @@
   "message": "標題不足以判斷時讀取網站"
  },
  "optReadSitesHint": {
-  "message": "速度較慢，但更準確。Chrome 會要求一次網站存取權。"
+  "message": "速度較慢，但更準確。瀏覽器會要求一次網站存取權。"
  },
  "optCheckDead": {
   "message": "找出不再回應的網站"
@@ -363,7 +363,7 @@
   "message": "已授予網站存取權"
  },
  "sitesAsked": {
-  "message": "下次分析時，Chrome 會要求網站存取權"
+  "message": "下次分析時，瀏覽器會要求網站存取權"
  },
  "backupsTitle": {
   "message": "備份"

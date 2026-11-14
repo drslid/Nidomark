@@ -1,6 +1,6 @@
 // End-to-end test of site reading in Chrome: a local server plays a few sites, the extension reads them in
 // parallel, files what the pages say, sets dead sites apart and tests every bookmark left to check.
-// Usage: pnpm build && node tests/e2e/sites.mjs   (CHROME_PATH=/path/to/chrome)
+// Usage: pnpm build && node tests/e2e/chromium/sites.mjs   (CHROME_PATH=/path/to/chrome)
 import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
 import http from 'node:http';
@@ -9,7 +9,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import puppeteer from 'puppeteer-core';
 
-const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
+const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..', '..');
 const BUILT = path.join(ROOT, '.output', 'chrome-mv3');
 const EXT = path.join(ROOT, '.output', 'e2e-sites-ext');
 const assert = (cond, msg) => {

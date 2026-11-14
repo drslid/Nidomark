@@ -327,7 +327,7 @@
   "message": "Ler os sites quando o título não basta"
  },
  "optReadSitesHint": {
-  "message": "Mais lento, mais preciso. O Chrome pede acesso aos sites uma única vez."
+  "message": "Mais lento, mais preciso. O navegador pede acesso aos sites uma única vez."
  },
  "optCheckDead": {
   "message": "Encontrar sites que não respondem mais"
@@ -363,7 +363,7 @@
   "message": "Acesso aos sites concedido"
  },
  "sitesAsked": {
-  "message": "O Chrome vai pedir acesso aos sites na próxima análise"
+  "message": "O navegador vai pedir acesso aos sites na próxima análise"
  },
  "backupsTitle": {
   "message": "Backups"

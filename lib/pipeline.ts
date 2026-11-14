@@ -45,9 +45,9 @@ export function folderText(title: string, lang: string): string {
   return category ? localName(category, lang) : title || '—';
 }
 
-/** The scope by default: the whole tree. */
+/** The scope by default: the whole tree, Firefox's Bookmarks Menu included. */
 export function defaultScope(snapshot: Snapshot): string[] {
-  return [snapshot.barId, snapshot.otherId, snapshot.mobileId].filter((x): x is string => !!x);
+  return [snapshot.barId, ...(snapshot.extraRootIds ?? []), snapshot.otherId, snapshot.mobileId].filter((x): x is string => !!x);
 }
 
 /** Choices of the scope picker that still make sense: root folders and the folders right inside them. */
@@ -92,6 +92,8 @@ export function archiveSources(snapshot: Snapshot, include: string[], exclude: s
         const b = snapshot.bookmarks.get(id);
         if (b && !b.unmodifiable) items.push({ id, index: b.index, expect: { parentId: rootId, title: b.title, url: b.url } });
       }
+      // Firefox's separators go too, or they would be left alone at the start of the bar.
+      for (const s of root.separators ?? []) items.push({ id: s.id, index: s.index, expect: { parentId: rootId, title: '', url: s.url } });
     }
     for (const id of root.folderIds) {
       const f = snapshot.folders.get(id);

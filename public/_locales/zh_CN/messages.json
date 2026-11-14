@@ -327,7 +327,7 @@
   "message": "标题不足以判断时读取网站"
  },
  "optReadSitesHint": {
-  "message": "速度较慢，但更准确。Chrome 会请求一次网站访问权限。"
+  "message": "速度较慢，但更准确。浏览器会请求一次网站访问权限。"
  },
  "optCheckDead": {
   "message": "查找不再响应的网站"
@@ -363,7 +363,7 @@
   "message": "已授予网站访问权限"
  },
  "sitesAsked": {
-  "message": "下次分析时，Chrome 会请求网站访问权限"
+  "message": "下次分析时，浏览器会请求网站访问权限"
  },
  "backupsTitle": {
   "message": "备份"

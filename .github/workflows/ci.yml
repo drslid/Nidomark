@@ -21,3 +21,7 @@ jobs:
         run: pnpm check
       - name: Build (without the model)
         run: pnpm build
+      - name: Build for Firefox (without the model)
+        run: pnpm build:firefox
+      - name: Check the Firefox build with Mozilla's add-on linter
+        run: pnpm dlx web-ext@10.8.0 lint --source-dir .output/firefox-mv3

@@ -2,7 +2,7 @@ import type { Analysis } from '../analyze';
 import { isWithin } from '../edit';
 import { t } from '../i18n';
 import { type Decisions, type Op, buildRebuildPlan, folderTitle } from '../plan';
-import { archiveSources } from '../pipeline';
+import { archiveSources, defaultScope } from '../pipeline';
 import { openNewFolderDialog } from './dialogs';
 import { type Dragged, draggable, draggedIds, dropTarget } from './dnd';
 import { favicon, h, icon } from './dom';
@@ -28,8 +28,7 @@ export function planFor(an: Analysis, d: Decisions, archiveTitle = ''): Op[] {
 }
 
 function sourceName(an: Analysis): string {
-  const all = [an.snapshot.barId, an.snapshot.otherId, an.snapshot.mobileId].filter(Boolean);
-  if (all.every((id) => an.scopeFolderIds.includes(id as string))) return t('sourceAll');
+  if (defaultScope(an.snapshot).every((id) => an.scopeFolderIds.includes(id))) return t('sourceAll');
   return an.scopeFolderIds.map((id) => rootTitle(an, id)).join(', ');
 }
 

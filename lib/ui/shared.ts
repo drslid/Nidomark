@@ -2,6 +2,7 @@ import type { Analysis } from '../analyze';
 import { type SuggestionTarget, suggestionTarget } from '../edit';
 import { rootFolderName, t, uiLanguage } from '../i18n';
 import type { Decisions } from '../plan';
+import { rootKindOf } from '../snapshot';
 import { localName } from '../taxonomy';
 import type { Reason } from '../types';
 import { type DestNode, type Layout, nodeKeyOf } from './viewmodel';
@@ -19,8 +20,7 @@ export function bookmarkTitle(an: Analysis, d: Decisions, id: string): string {
 /** Name of a root folder as the browser shows it ("Bookmarks bar", "Barre de favoris"). */
 export function rootTitle(an: Analysis, rootId: string | undefined): string {
   const snap = an.snapshot;
-  const kind = rootId === snap.barId ? 'bar' : rootId === snap.otherId ? 'other' : 'mobile';
-  return rootFolderName(kind, snap.folders.get(rootId ?? '')?.title ?? '');
+  return rootFolderName(rootKindOf(snap, rootId), snap.folders.get(rootId ?? '')?.title ?? '', snap.liveRootTitles);
 }
 
 /** "To check" shows the amber help icon, unless the user gave it an emoji of their own. */

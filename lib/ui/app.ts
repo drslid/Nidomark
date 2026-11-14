@@ -9,9 +9,10 @@ import { clearVectors } from '../idb';
 import { type BookmarksApi, type Decisions, type FolderParent, type FolderStyle, type Journal, UnresolvedJournalError, applyPlan, defaultDecisions, keepInterrupted, undoLast } from '../plan';
 import { defaultScope, pruneScope } from '../pipeline';
 import { isBackupTitle, knownSiteFor, localName } from '../taxonomy';
-import { buildSnapshot, type TreeNode } from '../snapshot';
+import { readSnapshot } from '../platform';
+import { rootKindOf } from '../snapshot';
 import * as store from '../storage';
-import type { Proposal, Target } from '../types';
+import type { Proposal, Snapshot, Target } from '../types';
 import { isWebUrl } from '../url';
 import { openConfirmDialog } from './dialogs';
 import { announce, h, icon, replaceKeepingFocus } from './dom';
@@ -66,7 +67,11 @@ export class App implements Actions {
       store.loadSettings(), store.hasHistoryPermission(), store.hasSitesPermission(), store.journalStore.load(), store.loadIconOnlyNames(), this.liveBackups(),
     ]);
     Object.assign(this.state, { settings, historyAllowed, sitesAllowed, lastJournal, backups, iconOnlyCount: Object.keys(names).length });
-    const onChange = () => {
+    const onChange = (id: string, info?: { parentId?: string; oldParentId?: string }) => {
+      const snap = this.state.analysis?.snapshot;
+      // Changes in what Nidomark does not sort (a Speed Dial, the trash) leave the proposal as it is.
+      const known = (x?: string) => !!x && (snap?.bookmarks.has(x) || snap?.folders.has(x));
+      if (this.state.view === 'review' && snap && ![id, info?.parentId, info?.oldParentId].some(known)) return;
       if (this.state.view === 'review') this.set({ changedDuringReview: true });
       else if (this.state.view === 'start') void this.loadPreview();
     };
@@ -141,13 +146,13 @@ export class App implements Actions {
   }
 
   /** Scope of the next sort: chosen root folders and folders right inside them, or the whole tree. */
-  private scopeOf(snap: ReturnType<typeof buildSnapshot>): { include: string[]; exclude: string[] } {
+  private scopeOf(snap: Snapshot): { include: string[]; exclude: string[] } {
     const include = pruneScope(snap, this.state.settings.scopeFolderIds);
     return { include: include.length ? include : defaultScope(snap), exclude: pruneScope(snap, this.state.settings.scopeExcluded) };
   }
 
   private async loadPreview(): Promise<void> {
-    const snap = buildSnapshot((await browser.bookmarks.getTree()) as TreeNode[]);
+    const snap = await readSnapshot();
     const { include, exclude } = this.scopeOf(snap);
     const chosen = scopeCandidates(snap, include, exclude);
     // Bookmarks under each folder, whatever is chosen, for the picker.
@@ -157,7 +162,7 @@ export class App implements Actions {
       let f = snap.folders.get(snap.bookmarks.get(id)?.parentId ?? '');
       while (f) {
         under.set(f.id, (under.get(f.id) ?? 0) + 1);
-        f = f.parentId ? snap.folders.get(f.parentId) : undefined;
+        f = f.parentId && !f.isRoot ? snap.folders.get(f.parentId) : undefined;
       }
     }
     const isIncluded = (folderId: string): boolean => {
@@ -165,11 +170,11 @@ export class App implements Actions {
       while (f) {
         if (exclude.includes(f.id)) return false;
         if (include.includes(f.id)) return true;
-        f = f.parentId ? snap.folders.get(f.parentId) : undefined;
+        f = f.parentId && !f.isRoot ? snap.folders.get(f.parentId) : undefined;
       }
       return false;
     };
-    const rootName = (id: string, title: string) => rootFolderName(id === snap.barId ? 'bar' : id === snap.otherId ? 'other' : 'mobile', title);
+    const rootName = (id: string, title: string) => rootFolderName(rootKindOf(snap, id), title, snap.liveRootTitles);
     const folders: Preview['folders'] = [];
     for (const rootId of defaultScope(snap)) {
       const root = snap.folders.get(rootId);
@@ -192,7 +197,7 @@ export class App implements Actions {
   }
 
   private async loadSettingsData(): Promise<void> {
-    const snap = buildSnapshot((await browser.bookmarks.getTree()) as TreeNode[]);
+    const snap = await readSnapshot();
     const folders = [...snap.folders.values()].filter((f) => !f.unmodifiable).sort((a, b) => [...a.path, a.title].join('/').localeCompare([...b.path, b.title].join('/')));
     this.settingsData = { folders, otherId: snap.otherId, barId: snap.barId };
     this.render();
@@ -238,14 +243,15 @@ export class App implements Actions {
 
   toggleScope(folderId: string, included: boolean): void {
     void (async () => {
-      const snap = buildSnapshot((await browser.bookmarks.getTree()) as TreeNode[]);
+      const snap = await readSnapshot();
       const { include, exclude } = this.scopeOf(snap);
       const inc = new Set(include);
       const exc = new Set(exclude);
       // The folder's own choice replaces the choices made below it.
+      // Below it in the same root: Vivaldi's bar, a root inside its Bookmarks, keeps its own choice.
       const below = (id: string): boolean => {
         let f = snap.folders.get(id);
-        while (f?.parentId) {
+        while (f?.parentId && !f.isRoot) {
           if (f.parentId === folderId) return true;
           f = snap.folders.get(f.parentId);
         }
@@ -256,11 +262,12 @@ export class App implements Actions {
       inc.delete(folderId);
       exc.delete(folderId);
       const parentIncluded = (() => {
-        let f = snap.folders.get(snap.folders.get(folderId)?.parentId ?? '');
+        const self = snap.folders.get(folderId);
+        let f = self && !self.isRoot ? snap.folders.get(self.parentId ?? '') : undefined;
         while (f) {
           if (exc.has(f.id)) return false;
           if (inc.has(f.id)) return true;
-          f = f.parentId ? snap.folders.get(f.parentId) : undefined;
+          f = f.parentId && !f.isRoot ? snap.folders.get(f.parentId) : undefined;
         }
         return false;
       })();

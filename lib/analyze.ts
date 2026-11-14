@@ -4,9 +4,9 @@ import { type Assessment, type CategorizeInput, type CategorizeResult, type Dest
 import type { EmbedProgress, Embedder } from './embedder';
 import { exampleVectors } from './examples';
 import { prepare, pruneScope, remainingFolders, splitVectors } from './pipeline';
+import { guardSiteData, readSnapshot } from './platform';
 import { loadPublicSuffixList } from './psl';
 import { DEFAULT_POOL, type SiteRequest, type SiteVerdict, mergePages, pageText, readSites, siteRoot } from './site';
-import { buildSnapshot, type TreeNode } from './snapshot';
 import type { Features, HistoryInfo, Proposal, Snapshot } from './types';
 import { siteKey } from './url';
 
@@ -72,7 +72,7 @@ async function readHistory(): Promise<{ byUrl: Map<string, HistoryInfo>; hostVis
 
 export async function analyze(o: AnalyzeOptions): Promise<Analysis> {
   o.onProgress('reading', 0, 1);
-  const snapshot = buildSnapshot((await browser.bookmarks.getTree()) as TreeNode[]);
+  const snapshot = await readSnapshot();
   const history = o.useHistory ? await readHistory().catch(() => undefined) : undefined;
   // A rebuild archives whole folders: only root folders and the folders right inside them can be chosen.
   const excluded = pruneScope(snapshot, o.scopeExcluded);
@@ -138,8 +138,16 @@ async function readAndClassify(input: CategorizeInput, first: CategorizeResult, 
   };
   const wanted = new Set(o.read);
   const ids = [...new Set([...o.check, ...o.read])].filter(requestable);
-  const fetchAll = async (requests: SiteRequest[]) =>
-    requests.length ? readSites(requests, { ...DEFAULT_POOL, signal: o.signal, onProgress: (d, t) => o.onProgress('sites', d, t) }) : new Map<string, SiteVerdict>();
+  const fetchAll = async (requests: SiteRequest[]) => {
+    if (!requests.length) return new Map<string, SiteVerdict>();
+    // No site is requested unless it cannot erase its cookies and storage in answer (Firefox).
+    const guarded = await guardSiteData().then(() => true, (e: unknown) => {
+      console.warn('Nidomark: sites are not read, the Clear-Site-Data guard failed', e);
+      return false;
+    });
+    if (!guarded) return new Map<string, SiteVerdict>();
+    return readSites(requests, { ...DEFAULT_POOL, signal: o.signal, onProgress: (d, t) => o.onProgress('sites', d, t) });
+  };
   const verdicts = await fetchAll(ids.map((id) => ({ id, url: snapshot.bookmarks.get(id)?.url as string, maxBytes: wanted.has(id) ? READ_BYTES : CHECK_BYTES })));
   // Stopped meanwhile: nothing more is read, embedded or classified.
   o.signal?.throwIfAborted();

@@ -328,7 +328,7 @@
   "message": "Lire les sites quand le titre ne suffit pas"
  },
  "optReadSitesHint": {
-  "message": "Plus long, plus juste. Chrome vous demandera une fois l’accès aux sites."
+  "message": "Plus long, plus juste. Votre navigateur vous demandera une fois l’accès aux sites."
  },
  "optCheckDead": {
   "message": "Repérer les sites qui ne répondent plus"
@@ -364,7 +364,7 @@
   "message": "Accès aux sites autorisé"
  },
  "sitesAsked": {
-  "message": "Chrome demandera l’accès aux sites à la prochaine analyse"
+  "message": "Votre navigateur demandera l’accès aux sites à la prochaine analyse"
  },
  "backupsTitle": {
   "message": "Sauvegardes"

@@ -327,7 +327,7 @@
   "message": "Đọc trang web khi tiêu đề chưa đủ"
  },
  "optReadSitesHint": {
-  "message": "Chậm hơn nhưng chính xác hơn. Chrome sẽ hỏi quyền truy cập trang web một lần."
+  "message": "Chậm hơn nhưng chính xác hơn. Trình duyệt sẽ hỏi quyền truy cập trang web một lần."
  },
  "optCheckDead": {
   "message": "Tìm các trang web không còn phản hồi"
@@ -363,7 +363,7 @@
   "message": "Đã cấp quyền truy cập trang web"
  },
  "sitesAsked": {
-  "message": "Chrome sẽ hỏi quyền truy cập trang web ở lần phân tích tới"
+  "message": "Trình duyệt sẽ hỏi quyền truy cập trang web ở lần phân tích tới"
  },
  "backupsTitle": {
   "message": "Bản sao lưu"

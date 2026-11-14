@@ -5,9 +5,9 @@ description: The model, its size, the time an analysis takes and the memory it u
 
 ## Requirements
 
-| Requirement | Minimum                            |
-| ----------- | ---------------------------------- |
-| Browser     | Chrome 116 or later, on a computer |
+| Requirement | Minimum                                                                  |
+| ----------- | ------------------------------------------------------------------------ |
+| Browser     | Chrome 116 or later, Edge, Brave, Opera or Vivaldi; Firefox 140 or later |
 | System      | Windows, macOS or Linux            |
 | Disk        | About 200 MB free                  |
 | Memory      | 4 GB of RAM or more                |
@@ -34,7 +34,7 @@ Measured on the fictitious test collection, on one processor core:
 
 Reading sites usually takes longest: 16 sites at a time, up to 12 seconds for a site that does not answer, then a second, slower try for the sites that failed. On a large collection with dead-link checking on, this can take a few minutes; the progress screen shows how many sites remain.
 
-Applying writes every bookmark of the new tree through Chrome's bookmarks API, by batches written to the undo journal first; the progress screen counts them, and undoing takes about as long.
+Applying writes every bookmark of the new tree through the browser's bookmarks API, by batches written to the undo journal first; the progress screen counts them, and undoing takes about as long.
 
 ## Accuracy
 

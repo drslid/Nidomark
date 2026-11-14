@@ -327,7 +327,7 @@
   "message": "Odczytuj witryny, gdy tytuł nie wystarcza"
  },
  "optReadSitesHint": {
-  "message": "Wolniej, ale dokładniej. Chrome raz poprosi o dostęp do witryn."
+  "message": "Wolniej, ale dokładniej. Przeglądarka raz poprosi o dostęp do witryn."
  },
  "optCheckDead": {
   "message": "Wykrywaj witryny, które nie odpowiadają"
@@ -363,7 +363,7 @@
   "message": "Przyznano dostęp do witryn"
  },
  "sitesAsked": {
-  "message": "Chrome poprosi o dostęp do witryn przy następnej analizie"
+  "message": "Przeglądarka poprosi o dostęp do witryn przy następnej analizie"
  },
  "backupsTitle": {
   "message": "Kopie zapasowe"

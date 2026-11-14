@@ -327,7 +327,7 @@
   "message": "Sites lezen als de titel niet genoeg is"
  },
  "optReadSitesHint": {
-  "message": "Trager, maar nauwkeuriger. Chrome vraagt één keer om toegang tot sites."
+  "message": "Trager, maar nauwkeuriger. De browser vraagt één keer om toegang tot sites."
  },
  "optCheckDead": {
   "message": "Sites vinden die niet meer reageren"
@@ -363,7 +363,7 @@
   "message": "Toegang tot sites verleend"
  },
  "sitesAsked": {
-  "message": "Chrome vraagt bij de volgende analyse om toegang tot sites"
+  "message": "De browser vraagt bij de volgende analyse om toegang tot sites"
  },
  "backupsTitle": {
   "message": "Back-ups"

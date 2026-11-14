@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { bookmarksUnder, foldersUnder, userFolder } from '../lib/edit';
 import { type BookmarksApi, type Decisions, type FolderDecision, type FolderStyle, type Op, UnresolvedJournalError, applyPlan, buildRebuildPlan, defaultDecisions, folderTitle, keepInterrupted, newTree, undoLast } from '../lib/plan';
-import { archiveSources, pruneScope } from '../lib/pipeline';
+import { scopeCandidates } from '../lib/categorize';
+import { archiveSources, defaultScope, pruneScope } from '../lib/pipeline';
 import { buildSnapshot, type TreeNode } from '../lib/snapshot';
 import type { Proposal } from '../lib/types';
 import { type InputOptions, buildTree, run } from './fixtures/collection';
@@ -294,6 +295,108 @@ describe('archive', () => {
       ['archive:1', 'Barre de favoris', ['g']],
       ['archive:2', 'Autres favoris', ['perso', 'x']],
     ]);
+  });
+
+  it('takes Firefox’s Bookmarks Menu too, and its separators, in order', () => {
+    const snap = buildSnapshot([{ id: 'root________', title: '', children: [
+      { id: 'menu________', parentId: 'root________', title: 'Bookmarks Menu', type: 'folder', children: [
+        { id: 'mf', index: 0, title: 'Mozilla Firefox', type: 'folder', children: [] },
+        { id: 's1', index: 1, title: '', type: 'separator', url: 'data:' },
+        { id: 'm1', index: 2, title: 'MDN', type: 'bookmark', url: 'https://developer.mozilla.org/' },
+      ] },
+      { id: 'toolbar_____', parentId: 'root________', title: 'Bookmarks Toolbar', type: 'folder', children: [
+        { id: 's2', index: 0, title: '', type: 'separator', url: 'data:' },
+        { id: 't1', index: 1, title: 'Gmail', type: 'bookmark', url: 'https://mail.google.com/' },
+      ] },
+      { id: 'unfiled_____', parentId: 'root________', title: 'Other Bookmarks', type: 'folder', children: [] },
+      { id: 'mobile______', parentId: 'root________', title: 'Mobile Bookmarks', type: 'folder', children: [] },
+    ] }], 1);
+    expect(defaultScope(snap)).toEqual(['toolbar_____', 'menu________', 'unfiled_____', 'mobile______']);
+    // A separator is neither a bookmark to sort nor a folder.
+    expect([[...snap.bookmarks.keys()], snap.folders.has('s1')]).toEqual([['m1', 't1'], false]);
+    const sources = archiveSources(snap, defaultScope(snap), [], (id) => snap.folders.get(id)?.title ?? '');
+    expect(sources.map((s) => [s.title, s.items.map((i) => i.id)])).toEqual([
+      ['Bookmarks Toolbar', ['s2', 't1']],
+      ['Bookmarks Menu', ['mf', 's1', 'm1']],
+    ]);
+    expect(sources[0]?.items[0]?.expect).toEqual({ parentId: 'toolbar_____', title: '', url: 'data:' });
+  });
+
+  it('reads Vivaldi: the bar is the folder it shows, its Speed Dials and trash are left alone', () => {
+    const snap = buildSnapshot([{ id: '0', title: '', children: [
+      { id: '1', parentId: '0', title: 'Bookmarks', folderType: 'bookmarks-bar', children: [
+        { id: 'sd', index: 0, title: 'Home', speeddial: true, children: [{ id: 'sd1', index: 0, title: 'Gmail', url: 'https://mail.google.com/' }] },
+        { id: 'mine', index: 1, title: 'Recettes', children: [{ id: 'r1', index: 0, title: 'Marmiton', url: 'https://www.marmiton.org/' }] },
+        { id: 'bar', index: 2, title: 'Bookmarks bar', bookmarkbar: true, children: [{ id: 'b1', index: 0, title: 'Gmail', url: 'https://mail.google.com/' }] },
+        { id: 'loose', index: 3, title: 'Wikipédia', url: 'https://fr.wikipedia.org/' },
+      ] },
+      { id: '2', parentId: '0', title: 'Other bookmarks', folderType: 'other', children: [] },
+      { id: '4', parentId: '0', title: 'Trash', trash: true, children: [{ id: 't1', index: 0, title: 'Marmiton', url: 'https://www.marmiton.org/' }] },
+    ] }], 1);
+    expect([snap.barId, snap.extraRootIds, snap.otherId, defaultScope(snap)]).toEqual(['bar', ['1'], '2', ['bar', '1', '2']]);
+    // Neither sorted nor counted: the bar's Gmail is no duplicate of the Speed Dial's, nor Marmiton of the trash's.
+    expect([...snap.bookmarks.keys()].sort()).toEqual(['b1', 'loose', 'r1']);
+    expect(snap.bookmarks.get('b1')?.inBar).toBe(true);
+    // The bar is emptied, never moved: Vivaldi would show the backup. The Speed Dials stay too.
+    const sources = archiveSources(snap, defaultScope(snap), [], (id) => snap.folders.get(id)?.title ?? '');
+    expect(sources.map((s) => [s.title, s.items.map((i) => i.id)])).toEqual([['Bookmarks bar', ['b1']], ['Bookmarks', ['mine', 'loose']]]);
+    // A bar left out stays out, though it is inside a chosen root.
+    expect(scopeCandidates(snap, ['1', '2']).sort()).toEqual(['loose', 'r1']);
+  });
+
+  it('keeps the folders that hold a bar Vivaldi shows from deeper down', () => {
+    const snap = buildSnapshot([{ id: '0', title: '', children: [
+      { id: '1', parentId: '0', title: 'Bookmarks', folderType: 'bookmarks-bar', children: [
+        { id: 'work', index: 0, title: 'Work', children: [
+          { id: 'bar', index: 0, title: 'My bar', bookmarkbar: true, children: [{ id: 'b1', index: 0, title: 'Jira', url: 'https://jira.example.com/' }] },
+          { id: 'w1', index: 1, title: 'Wiki', url: 'https://wiki.example.com/' },
+        ] },
+        { id: 'loose', index: 1, title: 'Wikipédia', url: 'https://fr.wikipedia.org/' },
+      ] },
+      { id: '2', parentId: '0', title: 'Other bookmarks', folderType: 'other', children: [] },
+    ] }], 1);
+    const sources = archiveSources(snap, defaultScope(snap), [], (id) => snap.folders.get(id)?.title ?? '');
+    expect(sources.map((s) => s.items.map((i) => i.id))).toEqual([['b1'], ['loose']]);
+    expect(scopeCandidates(snap, defaultScope(snap)).sort()).toEqual(['b1', 'loose']);
+  });
+
+  it('keeps a folder that holds a Vivaldi Speed Dial where it is, with what it holds', () => {
+    const snap = buildSnapshot([{ id: '0', title: '', children: [
+      { id: '1', parentId: '0', title: 'Bookmarks', folderType: 'bookmarks-bar', children: [
+        { id: 'work', index: 0, title: 'Work', children: [
+          { id: 'w1', index: 0, title: 'Wiki', url: 'https://wiki.example.com/' },
+          { id: 'dials', index: 1, title: 'Work dials', speeddial: true, children: [{ id: 'd1', index: 0, title: 'Jira', url: 'https://jira.example.com/' }] },
+        ] },
+        { id: 'bar', index: 1, title: 'Bookmarks bar', bookmarkbar: true, children: [
+          { id: 'b1', index: 0, title: 'Gmail', url: 'https://mail.google.com/' },
+          { id: 'tools', index: 1, title: 'Tools', children: [{ id: 'sd2', index: 0, title: 'Dials', speeddial: true, children: [] }, { id: 't1', index: 1, title: 'Regex', url: 'https://regex101.com/' }] },
+        ] },
+        { id: 'loose', index: 2, title: 'Wikipédia', url: 'https://fr.wikipedia.org/' },
+      ] },
+      { id: '2', parentId: '0', title: 'Other bookmarks', folderType: 'other', children: [] },
+    ] }], 1);
+    expect(['work', 'tools'].map((id) => snap.folders.get(id)?.unmodifiable)).toEqual([true, true]);
+    const sources = archiveSources(snap, defaultScope(snap), [], (id) => snap.folders.get(id)?.title ?? '');
+    expect(sources.map((s) => s.items.map((i) => i.id))).toEqual([['b1'], ['loose']]);
+    expect(scopeCandidates(snap, defaultScope(snap)).sort()).toEqual(['b1', 'loose']);
+  });
+
+  it('reads Opera: its Other bookmarks, Unsorted and Imported bookmarks, never its Speed Dial, Pinboard or trash', () => {
+    const tree: TreeNode[] = [{ id: '0', title: '', children: [
+      { id: '1', parentId: '0', title: 'Barre de favoris', folderType: 'bookmarks-bar', children: [] },
+      { id: '2', parentId: '0', title: 'Favoris importés', folderType: 'other', children: [{ id: 'i1', index: 0, title: 'MDN', url: 'https://developer.mozilla.org/' }] },
+      { id: '7', parentId: '0', title: 'Pinboard', children: [{ id: 'p1', index: 0, title: 'MDN', url: 'https://developer.mozilla.org/' }] },
+      { id: '6', parentId: '0', title: 'Speed Dials', children: [{ id: 'g', index: 0, title: 'b303ntq', children: [{ id: 's1', index: 0, title: 'YouTube', url: 'https://www.youtube.com/' }] }] },
+      { id: '9', parentId: '0', title: 'Corbeille', children: [{ id: 't1', index: 0, title: 'YouTube', url: 'https://www.youtube.com/' }] },
+      { id: '4', parentId: '0', title: 'Favoris non classés', children: [{ id: 'u1', index: 0, title: 'YouTube', url: 'https://www.youtube.com/' }] },
+      { id: '5', parentId: '0', title: 'Autres signets', children: [] },
+    ] }];
+    const snap = buildSnapshot(tree, 1, { otherId: '5', extraIds: ['4', '2'], liveTitles: true });
+    expect([snap.barId, snap.otherId, snap.liveRootTitles, defaultScope(snap)]).toEqual(['1', '5', true, ['1', '4', '2', '5']]);
+    expect([[...snap.bookmarks.keys()].sort(), ['6', '7', '9', 'g'].some((id) => snap.folders.has(id))]).toEqual([['i1', 'u1'], false]);
+    // Without its API, only Chrome's roots are read.
+    const plain = buildSnapshot(tree, 1);
+    expect([defaultScope(plain), [...plain.bookmarks.keys()]]).toEqual([['1', '2'], ['i1']]);
   });
 
   it('takes a chosen folder whole, and only folders at the top can be chosen', () => {

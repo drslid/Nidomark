@@ -79,4 +79,7 @@ fs.mkdirSync(out, { recursive: true });
 for (const size of [16, 32, 48, 96, 128]) fs.writeFileSync(path.join(out, `${size}.png`), render(size));
 fs.mkdirSync(path.join(ROOT, 'docs', 'assets'), { recursive: true });
 fs.writeFileSync(path.join(ROOT, 'docs', 'assets', 'icon-512.png'), render(512));
+// Edge Add-ons: a square logo, 300×300 recommended.
+fs.mkdirSync(path.join(ROOT, 'docs', 'store'), { recursive: true });
+fs.writeFileSync(path.join(ROOT, 'docs', 'store', 'logo-300.png'), render(300));
 console.log('icons written');

@@ -328,7 +328,7 @@
   "message": "Read sites when the title is not enough"
  },
  "optReadSitesHint": {
-  "message": "Slower, more accurate. Chrome asks once for access to sites."
+  "message": "Slower, more accurate. Your browser asks once for access to sites."
  },
  "optCheckDead": {
   "message": "Find sites that no longer answer"
@@ -364,7 +364,7 @@
   "message": "Access to sites granted"
  },
  "sitesAsked": {
-  "message": "Chrome will ask for access to sites at the next analysis"
+  "message": "Your browser will ask for access to sites at the next analysis"
  },
  "backupsTitle": {
   "message": "Backups"

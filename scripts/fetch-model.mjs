@@ -65,6 +65,48 @@ for (const [name, expected] of Object.entries(FILES)) {
   console.log(`✓ ${name} verified`);
 }
 
+// Firefox's add-on store refuses files over 100 MB, and JSON files over 5 MB it cannot check (addons-linter): the
+// model and the tokenizer are also stored in parts of at most 40 MB, named so that nothing tries to parse them. The
+// extension ships the parts instead of the whole files (wxt.config.ts) and joins them again (lib/embed.worker.ts).
+const PART_SIZE = 40 * 1024 * 1024;
+for (const name of ['onnx/model_quantized.onnx', 'tokenizer.json']) {
+  const whole = path.join(modelDir, name);
+  const index = `${whole}.parts.json`;
+  const base = path.basename(whole);
+  const known = fs.existsSync(index) ? JSON.parse(fs.readFileSync(index, 'utf8')) : null;
+  const expected = FILES[name];
+  // Parts already there are kept only if, joined again, they are exactly the verified file.
+  const partsMatch = () => {
+    if (!known || known.size !== expected.size || known.sha256 !== expected.sha256 || !Array.isArray(known.parts)) return false;
+    const hash = createHash('sha256');
+    let size = 0;
+    for (const [i, p] of known.parts.entries()) {
+      const file = path.join(path.dirname(whole), p);
+      if (p !== `${base}.${i}` || !fs.existsSync(file)) return false;
+      const data = fs.readFileSync(file);
+      size += data.length;
+      hash.update(data);
+    }
+    return size === expected.size && hash.digest('hex') === expected.sha256;
+  };
+  if (partsMatch()) {
+    console.log(`✓ ${name} parts verified`);
+    continue;
+  }
+  // Parts of an earlier split would be packaged too.
+  const stale = new RegExp(`^${base.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\.\\d+$`);
+  for (const f of fs.readdirSync(path.dirname(whole))) if (stale.test(f)) fs.rmSync(path.join(path.dirname(whole), f));
+  const data = fs.readFileSync(whole);
+  const parts = [];
+  for (let i = 0, start = 0; start < data.length; i++, start += PART_SIZE) {
+    const part = `${base}.${i}`;
+    fs.writeFileSync(path.join(path.dirname(whole), part), data.subarray(start, start + PART_SIZE));
+    parts.push(part);
+  }
+  fs.writeFileSync(index, `${JSON.stringify({ size: data.length, sha256: createHash('sha256').update(data).digest('hex'), parts })}\n`);
+  console.log(`✓ ${name} stored in ${parts.length} part${parts.length > 1 ? 's' : ''}`);
+}
+
 // ONNX Runtime Web: the exact version used by @huggingface/transformers.
 function packageDir(name, fromFile) {
   let dir = path.dirname(createRequire(fromFile).resolve(name));

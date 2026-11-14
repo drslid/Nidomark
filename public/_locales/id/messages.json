@@ -327,7 +327,7 @@
   "message": "Baca situs jika judul tidak cukup"
  },
  "optReadSitesHint": {
-  "message": "Lebih lambat, lebih akurat. Chrome akan meminta akses ke situs satu kali."
+  "message": "Lebih lambat, lebih akurat. Browser akan meminta akses ke situs satu kali."
  },
  "optCheckDead": {
   "message": "Temukan situs yang tidak merespons lagi"
@@ -363,7 +363,7 @@
   "message": "Akses ke situs diizinkan"
  },
  "sitesAsked": {
-  "message": "Chrome akan meminta akses ke situs saat analisis berikutnya"
+  "message": "Browser akan meminta akses ke situs saat analisis berikutnya"
  },
  "backupsTitle": {
   "message": "Cadangan"

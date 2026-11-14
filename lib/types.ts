@@ -33,8 +33,13 @@ export interface FolderItem {
   inBar: boolean;
   bookmarkIds: string[];
   folderIds: string[];
+  /** Separators between its items (Firefox): moved with the rest into the backup, never filed. */
+  separators?: { id: string; index: number; url?: string }[];
   syncing?: boolean;
-  /** Managed by a policy (Chrome's "managed bookmarks"): never a source nor a destination. */
+  /**
+   * Managed by a policy (Chrome's "managed bookmarks"), or holding a bar the browser shows from a folder of its choice
+   * (Vivaldi): never a source nor a destination.
+   */
   unmodifiable?: boolean;
 }
 
@@ -43,6 +48,13 @@ export interface Snapshot {
   barId?: string;
   otherId?: string;
   mobileId?: string;
+  /**
+   * More roots, sorted like these and shown with the browser's own names: Firefox's Bookmarks Menu, Opera's Unsorted
+   * bookmarks and Imported bookmarks, Vivaldi's Bookmarks when its bar is a folder inside.
+   */
+  extraRootIds?: string[];
+  /** The browser names its root folders in its own language (Firefox, Opera): Nidomark shows those names. */
+  liveRootTitles?: boolean;
   bookmarks: Map<string, BookmarkItem>;
   folders: Map<string, FolderItem>;
 }
