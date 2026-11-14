@@ -101,9 +101,19 @@ export async function launchFirefox({ executable, prefs = {}, headless = true })
       return Buffer.from(typeof r === 'string' ? r : r.value, 'base64');
     },
     close: async () => {
-      try { await send('Marionette:Quit', { flags: ['eForceQuit'] }); } catch { /* already gone */ }
+      const exited = new Promise((resolve) => {
+        if (proc.exitCode !== null || proc.signalCode !== null) resolve();
+        else proc.once('exit', resolve);
+      });
+      const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+      await Promise.race([send('Marionette:Quit', { flags: ['eForceQuit'] }).catch(() => undefined), wait(5000)]);
       socket.destroy();
-      proc.kill();
+      // Firefox writes to its profile until it exits: the profile is deleted only then.
+      await Promise.race([exited, wait(10000)]);
+      if (proc.exitCode === null && proc.signalCode === null) {
+        proc.kill('SIGKILL');
+        await exited;
+      }
       fs.rmSync(profile, { recursive: true, force: true });
     },
   };
