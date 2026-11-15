@@ -1,7 +1,7 @@
 // End-to-end test in Firefox: installs the Firefox build as a temporary add-on, sorts the fictitious collection with
 // the local model, applies the new tree, then undoes it and checks that the tree is exactly what it was. Firefox's own
 // ways are part of it: the Bookmarks Menu, separators, and the root folders' names.
-// Needs Firefox 140 or later: FIREFOX_PATH=/path/to/firefox pnpm e2e:firefox (after pnpm build:firefox).
+// Needs Firefox 142 or later: FIREFOX_PATH=/path/to/firefox pnpm e2e:firefox (after pnpm build:firefox).
 import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -24,7 +24,7 @@ const assert = (cond, msg) => {
   console.log(`✓ ${msg}`);
 };
 const version = Number(/(\d+)\./.exec(execFileSync(FIREFOX, ['--version']).toString())?.[1] ?? 0);
-if (version < 140) throw new Error(`Firefox ${version} is too old: Nidomark needs Firefox 140 or later (set FIREFOX_PATH)`);
+if (version < 142) throw new Error(`Firefox ${version} is too old: Nidomark needs Firefox 142 or later (set FIREFOX_PATH)`);
 
 const ff = await launchFirefox({ executable: FIREFOX, prefs: { 'extensions.webextensions.uuids': JSON.stringify({ [ID]: UUID }), 'intl.locale.requested': 'en-US' } });
 try {

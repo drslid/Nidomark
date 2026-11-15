@@ -26,7 +26,7 @@
 You need:
 
 - a computer with Windows, macOS or Linux;
-- Chrome 116 or later, Edge, Brave, Opera or Vivaldi, or Firefox 140 or later;
+- Chrome 116 or later, Edge, Brave, Opera or Vivaldi, or Firefox 142 or later;
 - about 200 MB of free disk space and 4 GB of RAM or more.
 
 The store listings are on their way. Until they are published, install a release:

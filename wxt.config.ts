@@ -27,8 +27,11 @@ export default defineConfig({
     ...(browser === 'firefox'
       ? {
           browser_specific_settings: {
-            // Nothing is collected or sent: Firefox shows it in its own consent prompt (Firefox 140+).
-            gecko: { id: GECKO_ID, strict_min_version: '140.0', data_collection_permissions: { required: ['none'] } },
+            // Nothing is collected or sent: Firefox shows it in its own consent prompt. Desktop only, as there is no
+            // gecko_android key: Firefox for Android has no bookmarks API. Mozilla's linter still checks this minimum
+            // against Firefox for Android, where data_collection_permissions arrived in 142; Firefox 140 and 141 are
+            // no longer supported by Mozilla (ESR 153).
+            gecko: { id: GECKO_ID, strict_min_version: '142.0', data_collection_permissions: { required: ['none'] } },
           },
         }
       : { minimum_chrome_version: '116' }),
@@ -54,6 +57,12 @@ export default defineConfig({
     },
   },
   vite: () => ({
+    resolve: {
+      // ONNX Runtime's build without a copy of its WebAssembly glue: the glue is loaded from /ort/ anyway (wasmPaths in
+      // lib/embed.worker.ts), so the copy was dead code. The rest are Vite's default conditions, which this list
+      // replaces (https://vite.dev/config/shared-options#resolve-conditions).
+      conditions: ['onnxruntime-web-use-extern-wasm', 'module', 'browser', 'development|production'],
+    },
     worker: { format: 'es' },
     plugins: [
       {

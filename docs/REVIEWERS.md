@@ -31,18 +31,18 @@ pnpm zip:firefox
 ## Third-party libraries
 
 - [@huggingface/transformers 4.3.2](https://www.npmjs.com/package/@huggingface/transformers/v/4.3.2) (Apache-2.0) runs the model. It is bundled by Vite into the worker (`assets/embed.worker-*.js`).
-- [onnxruntime-web 1.31.1](https://www.npmjs.com/package/onnxruntime-web/v/1.31.1) (MIT) comes in two parts: its JavaScript is bundled the same way, and its WebAssembly files sit unchanged in `ort/`.
+- [onnxruntime-web 1.31.1](https://www.npmjs.com/package/onnxruntime-web/v/1.31.1) (MIT) comes in two parts: its JavaScript (`dist/ort.webgpu.min.mjs`) is bundled the same way, and its WebAssembly glue and binary sit unchanged in `ort/`.
 
 ## Linter warnings
 
-`DANGEROUS_EVAL` and `UNSAFE_VAR_ASSIGNMENT` come from ONNX Runtime Web, unchanged:
+The linter reports two warnings. Both come from ONNX Runtime Web 1.31.1 (Microsoft, MIT):
 
-- The Emscripten glue in `ort/ort-wasm-simd-threaded.asyncify.mjs` uses the `Function` constructor.
-- The worker imports that local glue file with a computed path (`/ort/…`).
+- `DANGEROUS_EVAL` in `ort/ort-wasm-simd-threaded.asyncify.mjs`, line 49: Emscripten's embind builds its method callers with the `Function` constructor. The file is the npm package's `dist/ort-wasm-simd-threaded.asyncify.mjs`, unchanged (SHA-256 `59cf781530e1a16df2a291d78798e3ec1152467edaec402d6f9599d85047c302`).
+- `UNSAFE_VAR_ASSIGNMENT` in `assets/embed.worker-*.js`: ONNX Runtime's loader imports that glue file by its URL, `/ort/ort-wasm-simd-threaded.asyncify.mjs`, a packaged file (`wasmPaths` in `lib/embed.worker.ts`).
 
-The extension pages' CSP allows only packaged scripts and WebAssembly (`script-src 'self' 'wasm-unsafe-eval'`). No code is loaded from the network.
+The worker bundles ONNX Runtime's build without an embedded copy of the glue (`dist/ort.webgpu.min.mjs`, chosen by the package's `onnxruntime-web-use-extern-wasm` export condition in `wxt.config.ts`), so the glue exists once, unchanged. The extension pages' CSP allows only packaged scripts and WebAssembly (`script-src 'self' 'wasm-unsafe-eval'`). No code is loaded from the network.
 
-`KEY_FIREFOX_ANDROID_UNSUPPORTED_BY_MIN_VERSION` does not apply: Firefox for Android has no bookmarks API, so the add-on is for Firefox on a computer only.
+The add-on is for Firefox on a computer only: there is no `gecko_android` key, since Firefox for Android has no bookmarks API. `strict_min_version` is 142 because the linter also checks it against Firefox for Android, where `data_collection_permissions` arrived in 142.
 
 ## Data and network
 

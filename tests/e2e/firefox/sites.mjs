@@ -3,7 +3,7 @@
 // Firefox does not, so Nidomark strips the header from the answers to its own requests (lib/platform.ts).
 // The test site first proves that it can erase its data (a normal visit does), then Nidomark analyzes bookmarks
 // pointing to it, with dead sites checked, and its cookie and storage must still be there.
-// Needs Firefox 140 or later: FIREFOX_PATH=/path/to/firefox pnpm e2e:firefox (after pnpm build:firefox).
+// Needs Firefox 142 or later: FIREFOX_PATH=/path/to/firefox pnpm e2e:firefox (after pnpm build:firefox).
 import { execFileSync } from 'node:child_process';
 import http from 'node:http';
 import path from 'node:path';
@@ -24,7 +24,7 @@ const assert = (cond, msg) => {
   console.log(`✓ ${msg}`);
 };
 const version = Number(/(\d+)\./.exec(execFileSync(FIREFOX, ['--version']).toString())?.[1] ?? 0);
-if (version < 140) throw new Error(`Firefox ${version} is too old: Nidomark needs Firefox 140 or later (set FIREFOX_PATH)`);
+if (version < 142) throw new Error(`Firefox ${version} is too old: Nidomark needs Firefox 142 or later (set FIREFOX_PATH)`);
 
 const seen = [];
 const server = http.createServer((req, res) => {

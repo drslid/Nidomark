@@ -3,7 +3,7 @@
 ## Requirements
 
 - Node.js 22 or later and pnpm (`corepack enable` installs the version pinned in `package.json`).
-- A browser to load the extension: Chrome 116 or later, Edge, Brave, Opera or Vivaldi; Firefox 140 or later.
+- A browser to load the extension: Chrome 116 or later, Edge, Brave, Opera or Vivaldi; Firefox 142 or later.
 
 ## First build
 
@@ -14,7 +14,7 @@ pnpm build           # Chrome, Edge, Brave, Opera, Vivaldi
 pnpm build:firefox   # Firefox
 ```
 
-`pnpm fetch-model` downloads `Xenova/multilingual-e5-small` at a pinned revision and checks the SHA-256 (large files) and git blob hashes (small files) published by Hugging Face. It then cuts the model and its tokenizer into parts of 40 MB at most (see [Browsers](#browsers)), and copies the ONNX Runtime WebAssembly files from `node_modules` into `public/ort`. These files are not committed: the model is larger than GitHub's 100 MB file limit. `package.json` pins `onnxruntime-web` to a release (1.31.1) instead of the development build Transformers.js asks for, because Firefox's add-on store accepts released libraries only.
+`pnpm fetch-model` downloads `Xenova/multilingual-e5-small` at a pinned revision and checks the SHA-256 (large files) and git blob hashes (small files) published by Hugging Face. It then cuts the model and its tokenizer into parts of 40 MB at most (see [Browsers](#browsers)), and copies the ONNX Runtime WebAssembly files from `node_modules` into `public/ort`. These files are not committed: the model is larger than GitHub's 100 MB file limit. `package.json` pins `onnxruntime-web` to a release (1.31.1) instead of the development build Transformers.js asks for, because Firefox's add-on store accepts released libraries only. The worker bundles ONNX Runtime's build without an embedded copy of that glue (export condition `onnxruntime-web-use-extern-wasm`, in `wxt.config.ts`): the glue is loaded from `/ort/`.
 
 Load `.output/chrome-mv3` from the extensions page (`chrome://extensions`, `edge://extensions`…) → **Developer mode** → **Load unpacked**, and `.output/firefox-mv3` from `about:debugging#/runtime/this-firefox` → **Load Temporary Add-on…** (its `manifest.json`). After a rebuild, reload the extension.
 
@@ -27,7 +27,7 @@ Load `.output/chrome-mv3` from the extensions page (`chrome://extensions`, `edge
 | `pnpm build`, `pnpm build:firefox` | Production build in `.output/chrome-mv3` (Chrome, Edge, Brave, Opera, Vivaldi) or `.output/firefox-mv3` |
 | `pnpm zip`, `pnpm zip:firefox`, `pnpm zip:all` | Packages for the stores; the Firefox one comes with the sources archive its reviewers rebuild it from ([REVIEWERS.md](REVIEWERS.md)) |
 | `pnpm e2e` | End-to-end tests in Chrome: real analysis, review and editing, rebuild, second sort, undo; site reading and Analyze again against a local server; the interface in Arabic (right to left), Japanese, Hindi and German; the root folders of each browser (`roots.mjs`). `CHROME_PATH` runs them in Edge, Brave, Opera or Vivaldi, `E2E_LANGS=ar,ja` chooses languages |
-| `pnpm e2e:firefox` | End-to-end tests in Firefox 140 or later (`FIREFOX_PATH=/path/to/firefox`): analysis, apply with the Bookmarks Menu and separators, undo; and a site answering with Clear-Site-Data, which must not erase its data |
+| `pnpm e2e:firefox` | End-to-end tests in Firefox 142 or later (`FIREFOX_PATH=/path/to/firefox`): analysis, apply with the Bookmarks Menu and separators, undo; and a site answering with Clear-Site-Data, which must not erase its data |
 | `pnpm eval` | Prints how the classifier files the fictitious collection (`--detail` lists the differences with the reference) |
 | `pnpm eval:big` | Sorts the large messy collection (440 bookmarks) and measures what a user sees: bookmarks under their subject, places per subject, folders twice under one parent (`--tree` prints the tree, `--wrong` the misfiled bookmarks); computes its missing vectors with the model |
 | `pnpm fixtures` | Recomputes the test vectors with the packaged model, after changing how texts are built |
@@ -62,7 +62,7 @@ The unit tests replay this pipeline on the fictitious collection of the feasibil
 
 One code base, built once per browser by WXT. What differs is kept in three places:
 
-- **`wxt.config.ts`**: the manifest. Manifest V3 everywhere (WXT would build Firefox in V2). Chromium browsers get the `favicon` permission and `minimum_chrome_version`. Firefox gets its add-on id (`nidomark@drslid.github.io`), `strict_min_version` 140, `data_collection_permissions: none` (shown as "no data collected" in its install prompt) and `declarativeNetRequestWithHostAccess`.
+- **`wxt.config.ts`**: the manifest. Manifest V3 everywhere (WXT would build Firefox in V2). Chromium browsers get the `favicon` permission and `minimum_chrome_version`. Firefox gets its add-on id (`nidomark@drslid.github.io`), `strict_min_version` 142 (the linter checks it against Firefox for Android too), `data_collection_permissions: none` (shown as "no data collected" in its install prompt) and `declarativeNetRequestWithHostAccess`.
 - **`lib/platform.ts`**: behaviour. It covers the favicon cache (Chromium) or letter badges (Firefox), and the root folders' names: Firefox and Opera name them in their own language. It also reads Opera's roots through `bookmarks.getRootByName`.
   - `guardSiteData` protects the sites Nidomark reads. A site can answer with `Clear-Site-Data` to erase its cookies and storage. Chromium browsers refuse it for a request without cookies, and log it ("The request's credentials mode prohibits modifying cookies and other local data"). Firefox obeys it.
   - So, before reading any page in Firefox, a session rule strips that header from the answers to Nidomark's own requests.

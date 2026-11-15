@@ -1,7 +1,7 @@
 {
   "name": "nidomark",
   "description": "Local AI that tidies your browser bookmarks into clear folders. Private, offline, free.",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "private": true,
   "type": "module",
   "license": "MIT",
